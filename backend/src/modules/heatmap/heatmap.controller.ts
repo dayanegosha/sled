@@ -11,4 +11,10 @@ export class HeatmapController {
   getHeatmap(@Query('bbox') bbox = '', @Query('zoom') zoom = '10') {
     return this.heatmap.getHeatmap(bbox, Number(zoom));
   }
+
+  @Get('top-regions')
+  topRegions(@Query('lang') lang?: string) {
+    const l = lang === 'en' || lang === 'zh' ? lang : 'ru';
+    return this.heatmap.topRegions(l);
+  }
 }

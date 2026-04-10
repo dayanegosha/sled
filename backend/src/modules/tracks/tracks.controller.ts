@@ -17,20 +17,30 @@ export class TracksController {
         lat: number;
         lng: number;
         accuracy?: number;
-        timestamp?: string;
+        timestamp?: string | number;
       }>;
     },
   ) {
     return this.tracks.uploadBatch(user.sub ?? user.id, body.points ?? []);
   }
 
-  @Get('revealed') getRevealed(@CurrentUser() user: any) {
+  @Get('revealed')
+  getRevealed(@CurrentUser() user: any) {
     return this.tracks.getRevealed(user.sub ?? user.id);
   }
-  @Get('stats') getStats() {
-    return this.tracks.getStats();
+
+  @Get('stats')
+  getStats(@CurrentUser() user: any) {
+    return this.tracks.getStats(user.sub ?? user.id);
   }
-  @Get('regions') getRegions() {
-    return this.tracks.getRegions();
+
+  @Get('today')
+  getToday(@CurrentUser() user: any) {
+    return this.tracks.getTodayStats(user.sub ?? user.id);
+  }
+
+  @Get('regions')
+  getRegions(@CurrentUser() user: any) {
+    return this.tracks.getRegions(user.sub ?? user.id);
   }
 }

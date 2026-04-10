@@ -15,6 +15,9 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
+const ACCESS_MAX_AGE = 15 * 60 * 1000;
+const REFRESH_MAX_AGE = 30 * 24 * 60 * 60 * 1000;
+
 function base64Url(buffer: Buffer) {
   return buffer
     .toString('base64')
@@ -31,6 +34,43 @@ function createCodeChallenge(verifier: string) {
   return base64Url(createHash('sha256').update(verifier).digest());
 }
 
+const pendingAuth = new Map<
+  string,
+  { codeVerifier: string; next: string; createdAt: number }
+>();
+
+const adminLoginFails = new Map<string, number>();
+const adminBannedIps = new Set<string>();
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of pendingAuth) {
+    if (now - val.createdAt > 10 * 60 * 1000) pendingAuth.delete(key);
+  }
+}, 60_000);
+
+function setAuthCookies(
+  res: Response,
+  accessToken: string,
+  refreshToken: string,
+) {
+  const secure = process.env.NODE_ENV === 'production';
+  res.cookie('access_token', accessToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    secure,
+    maxAge: ACCESS_MAX_AGE,
+  });
+  res.cookie('refresh_token', refreshToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/api/v1/auth',
+    secure,
+    maxAge: REFRESH_MAX_AGE,
+  });
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -44,34 +84,17 @@ export class AuthController {
     const codeVerifier = generateCodeVerifier();
     const codeChallenge = createCodeChallenge(codeVerifier);
 
-    res.cookie('vk_state', state, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/api/v1/auth/vk/callback',
-      maxAge: 10 * 60 * 1000,
+    pendingAuth.set(state, {
+      codeVerifier,
+      next: next && next.startsWith('/') ? next : '/map',
+      createdAt: Date.now(),
     });
-
-    res.cookie('vk_code_verifier', codeVerifier, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/api/v1/auth/vk/callback',
-      maxAge: 10 * 60 * 1000,
-    });
-
-    if (next && next.startsWith('/')) {
-      res.cookie('vk_next', next, {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/api/v1/auth/vk/callback',
-        maxAge: 10 * 60 * 1000,
-      });
-    }
 
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: process.env.VK_APP_ID ?? '',
       redirect_uri: process.env.VK_CALLBACK_URL ?? '',
-      scope: 'vkid.personal_info email',
+      scope: 'vkid.personal_info',
       state,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
@@ -91,8 +114,10 @@ export class AuthController {
     @Query('payload') payloadRaw: string,
     @Res() res: Response,
   ) {
+    const frontUrl = process.env.FRONTEND_URL ?? '';
+
     if (error) {
-      return res.redirect(`${process.env.FRONTEND_URL}/login?error=vk_denied`);
+      return res.redirect(`${frontUrl}/login?error=vk_denied`);
     }
 
     let code = codeRaw;
@@ -110,62 +135,46 @@ export class AuthController {
         state = payload.state ?? state;
         deviceId = payload.device_id ?? deviceId;
       } catch {
-        // ignore malformed payload and use direct query params
+        // ignore malformed payload
       }
     }
 
-    const expectedState = res.req.cookies?.vk_state;
-    const codeVerifier = res.req.cookies?.vk_code_verifier;
-    const next = res.req.cookies?.vk_next;
+    const pending = state ? pendingAuth.get(state) : undefined;
+    pendingAuth.delete(state);
 
-    res.clearCookie('vk_state', { path: '/api/v1/auth/vk/callback' });
-    res.clearCookie('vk_code_verifier', { path: '/api/v1/auth/vk/callback' });
-    res.clearCookie('vk_next', { path: '/api/v1/auth/vk/callback' });
-
-    if (!code || !state || !expectedState || state !== expectedState) {
-      return res.redirect(
-        `${process.env.FRONTEND_URL}/login?error=invalid_state`,
-      );
+    if (!code || !state || !pending) {
+      return res.redirect(`${frontUrl}/login?error=invalid_state`);
     }
 
-    const { accessToken, refreshToken } =
-      await this.authService.handleVkCallback({
-        code,
-        codeVerifier,
-        deviceId,
-        state,
-      });
+    try {
+      const { accessToken, refreshToken } =
+        await this.authService.handleVkCallback({
+          code,
+          codeVerifier: pending.codeVerifier,
+          deviceId,
+          state,
+        });
 
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: process.env.NODE_ENV === 'production',
-    });
+      setAuthCookies(res, accessToken, refreshToken);
 
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/api/v1/auth/refresh',
-      secure: process.env.NODE_ENV === 'production',
-    });
-
-    const target = next && next.startsWith('/') ? next : '/map';
-    return res.redirect(`${process.env.FRONTEND_URL}${target}`);
+      return res.redirect(`${frontUrl}${pending.next}`);
+    } catch {
+      return res.redirect(`${frontUrl}/login?error=vk_auth_failed`);
+    }
   }
 
   @Post('logout')
   @HttpCode(200)
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+    res.clearCookie('access_token', { path: '/' });
+    res.clearCookie('refresh_token', { path: '/api/v1/auth' });
     return { message: 'Logged out' };
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  me(@CurrentUser() user: any) {
-    return user;
+  async me(@CurrentUser() user: any) {
+    return this.authService.getFreshUserProfile(user.sub ?? user.id);
   }
 
   @Get('public-stats')
@@ -177,34 +186,31 @@ export class AuthController {
   async vkSdkExchange(
     @Body()
     body: {
-      code: string;
+      code?: string;
       state?: string;
       deviceId?: string;
       codeVerifier?: string;
+      accessToken?: string;
       next?: string;
     },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { accessToken, refreshToken } =
-      await this.authService.handleVkCallback({
+    let tokens: { accessToken: string; refreshToken: string };
+
+    if (body.accessToken) {
+      tokens = await this.authService.handleVkAccessToken(body.accessToken);
+    } else if (body.code) {
+      tokens = await this.authService.handleVkCallback({
         code: body.code,
         state: body.state,
         deviceId: body.deviceId,
         codeVerifier: body.codeVerifier,
       });
+    } else {
+      throw new UnauthorizedException('Missing code or accessToken');
+    }
 
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      secure: process.env.NODE_ENV === 'production',
-    });
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/api/v1/auth/refresh',
-      secure: process.env.NODE_ENV === 'production',
-    });
+    setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
 
     return {
       ok: true,
@@ -216,12 +222,43 @@ export class AuthController {
   async refresh(@Res() res: Response) {
     const token = res.req.cookies?.refresh_token;
     if (!token) throw new UnauthorizedException();
-    const { accessToken } = this.authService.refreshTokens(token);
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-    });
+    const { accessToken, refreshToken } =
+      this.authService.refreshTokens(token);
+    setAuthCookies(res, accessToken, refreshToken);
     return res.json({ ok: true });
+  }
+
+  @Post('admin-login')
+  @HttpCode(200)
+  async adminLogin(
+    @Body() body: { login: string; password: string },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const ip =
+      (res.req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      res.req.socket.remoteAddress ||
+      'unknown';
+
+    if (adminBannedIps.has(ip)) {
+      throw new UnauthorizedException('Access denied');
+    }
+
+    try {
+      const result = await this.authService.adminLogin(
+        body.login,
+        body.password,
+      );
+      adminLoginFails.delete(ip);
+      setAuthCookies(res, result.accessToken, result.refreshToken);
+      return { ok: true };
+    } catch {
+      const n = (adminLoginFails.get(ip) ?? 0) + 1;
+      adminLoginFails.set(ip, n);
+      if (n >= 2) {
+        adminBannedIps.add(ip);
+        adminLoginFails.delete(ip);
+      }
+      throw new UnauthorizedException('Invalid credentials');
+    }
   }
 }

@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root,
+[data-theme='dark-blue'] {
+  --rt-bg: #0d0f14;
+  --rt-bg-soft: #13151f;
+  --rt-text: #f3f4f6;
+  --rt-text-muted: #9ca3af;
+  --rt-accent: #3b82f6;
+  --rt-nav-bg: rgba(19, 21, 31, 0.92);
+  --sat: env(safe-area-inset-top);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+  --sar: env(safe-area-inset-right);
+}
+
+[data-theme='dark-red'] {
+  --rt-bg: #140a0c;
+  --rt-bg-soft: #1f1215;
+  --rt-text: #fdf2f2;
+  --rt-text-muted: #d4a5a8;
+  --rt-accent: #ef4444;
+  --rt-nav-bg: rgba(31, 18, 21, 0.95);
+}
+
+[data-theme='light-cyan'] {
+  --rt-bg: #f0f9ff;
+  --rt-bg-soft: #ffffff;
+  --rt-text: #0c1729;
+  --rt-text-muted: #64748b;
+  --rt-accent: #0891b2;
+  --rt-nav-bg: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme='light-pink'] {
+  --rt-bg: #fff1f5;
+  --rt-bg-soft: #ffffff;
+  --rt-text: #1a0a12;
+  --rt-text-muted: #9d6b7d;
+  --rt-accent: #db2777;
+  --rt-nav-bg: rgba(255, 255, 255, 0.95);
+}
+
+html,
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+  padding-left: var(--sal);
+  padding-right: var(--sar);
+  color: var(--rt-text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--rt-bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input, textarea, select {
+  font-size: 16px;
+}
