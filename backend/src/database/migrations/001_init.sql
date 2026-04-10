@@ -1,0 +1,116 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis_topology;
+
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  vk_id BIGINT UNIQUE NOT NULL,
+  username VARCHAR(64) NOT NULL,
+  display_name VARCHAR(128) NOT NULL,
+  avatar_url TEXT,
+  bio TEXT,
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  is_banned BOOLEAN NOT NULL DEFAULT FALSE,
+  ban_reason TEXT,
+  total_distance DOUBLE PRECISION NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  last_seen_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS tracks (
+  id BIGSERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  location GEOGRAPHY(POINT,4326) NOT NULL,
+  altitude DOUBLE PRECISION,
+  accuracy DOUBLE PRECISION,
+  speed DOUBLE PRECISION,
+  heading DOUBLE PRECISION,
+  recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS revealed_areas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  geom GEOGRAPHY(MULTIPOLYGON,4326) NOT NULL,
+  area_m2 DOUBLE PRECISION NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS regions (
+  id SERIAL PRIMARY KEY,
+  name_ru VARCHAR(128) NOT NULL,
+  name_en VARCHAR(128) NOT NULL,
+  name_zh VARCHAR(128),
+  code VARCHAR(16) UNIQUE NOT NULL,
+  geom GEOGRAPHY(MULTIPOLYGON,4326) NOT NULL,
+  area_m2 DOUBLE PRECISION NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS user_region_stats (
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  region_id INTEGER NOT NULL REFERENCES regions(id),
+  explored_m2 DOUBLE PRECISION NOT NULL DEFAULT 0,
+  explored_pct DOUBLE PRECISION NOT NULL DEFAULT 0,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY(user_id,region_id)
+);
+
+CREATE TABLE IF NOT EXISTS posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL CHECK (char_length(content)<=2000),
+  image_urls TEXT[] DEFAULT '{}',
+  location GEOGRAPHY(POINT,4326),
+  location_name VARCHAR(256),
+  likes_count INTEGER NOT NULL DEFAULT 0,
+  comments_count INTEGER NOT NULL DEFAULT 0,
+  is_hidden BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL CHECK (char_length(content)<=500),
+  is_hidden BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS likes (
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY(user_id,post_id)
+);
+
+CREATE TABLE IF NOT EXISTS friendships (
+  requester_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  addressee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status VARCHAR(16) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','accepted','blocked')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  PRIMARY KEY (requester_id, addressee_id),
+  CHECK (requester_id <> addressee_id)
+);
+
+CREATE TABLE IF NOT EXISTS heatmap_grid (
+  cell_id BIGSERIAL PRIMARY KEY,
+  location GEOGRAPHY(POINT,4326) NOT NULL,
+  user_count INTEGER NOT NULL DEFAULT 0,
+  visit_count INTEGER NOT NULL DEFAULT 0,
+  zoom_level SMALLINT NOT NULL DEFAULT 10,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS admin_audit_log (
+  id BIGSERIAL PRIMARY KEY,
+  admin_id UUID NOT NULL REFERENCES users(id),
+  action VARCHAR(64) NOT NULL,
+  target_type VARCHAR(32),
+  target_id TEXT,
+  metadata JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

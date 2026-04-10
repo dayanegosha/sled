@@ -1,0 +1,15 @@
+CREATE INDEX IF NOT EXISTS idx_users_vk_id ON users(vk_id);
+CREATE INDEX IF NOT EXISTS idx_users_is_banned ON users(is_banned) WHERE is_banned = FALSE;
+CREATE INDEX IF NOT EXISTS idx_tracks_user_id ON tracks(user_id);
+CREATE INDEX IF NOT EXISTS idx_tracks_recorded_at ON tracks USING BRIN(recorded_at);
+CREATE INDEX IF NOT EXISTS idx_tracks_location ON tracks USING GIST(location);
+CREATE INDEX IF NOT EXISTS idx_revealed_areas_geom ON revealed_areas USING GIST(geom);
+CREATE INDEX IF NOT EXISTS idx_regions_geom ON regions USING GIST(geom);
+CREATE INDEX IF NOT EXISTS idx_urs_user ON user_region_stats(user_id);
+CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_posts_location ON posts USING GIST(location) WHERE location IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_comments_post_id ON comments(post_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_likes_post_id ON likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_friendships_addressee ON friendships(addressee_id, status);
+CREATE INDEX IF NOT EXISTS idx_heatmap_location ON heatmap_grid USING GIST(location);
+CREATE INDEX IF NOT EXISTS idx_audit_admin ON admin_audit_log(admin_id, created_at DESC);

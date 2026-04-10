@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>RusTrack — UI Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-base:        #0b0d16;
+    --bg-surface:     #111420;
+    --bg-elevated:    #181c2a;
+    --bg-glass:       rgba(255,255,255,0.06);
+    --bg-glass-heavy: rgba(255,255,255,0.10);
+    --border-glass:   rgba(255,255,255,0.10);
+    --border-subtle:  rgba(255,255,255,0.06);
+    --text-primary:   #f0f2ff;
+    --text-secondary: rgba(240,242,255,0.55);
+    --text-muted:     rgba(240,242,255,0.30);
+    --accent-blue:    #3d7fff;
+    --accent-cyan:    #00d4ff;
+    --accent-aurora:  #7c4dff;
+    --accent-hot:     #ff4d6d;
+    --vk-blue:        #0077ff;
+    --gradient-hero:  linear-gradient(135deg, #0b0d16 0%, #141829 50%, #0e1220 100%);
+    --radius-sm:      10px;
+    --radius-md:      16px;
+    --radius-lg:      24px;
+    --radius-xl:      32px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: #06070e;
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 24px;
+    min-height: 100vh;
+    flex-wrap: wrap;
+  }
+
+  /* ─── PHONE FRAME ──────────────────────────────────────── */
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: var(--bg-base);
+    border-radius: 52px;
+    border: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 40px 80px rgba(0,0,0,0.7),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+
+  .phone-label {
+    color: rgba(255,255,255,0.3);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  /* Dynamic Island */
+  .notch {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 34px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 100;
+  }
+
+  /* ─── SCREEN 1: LOGIN ──────────────────────────────────── */
+  .login-screen {
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-hero);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 56px;
+  }
+
+  /* Animated aurora background */
+  .aurora {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    animation: float 8s ease-in-out infinite;
+  }
+  .aurora-blob:nth-child(1) {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, #3d7fff, transparent);
+    top: -80px; left: -60px;
+    animation-delay: 0s;
+  }
+  .aurora-blob:nth-child(2) {
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, #7c4dff, transparent);
+    top: 120px; right: -50px;
+    animation-delay: -3s;
+  }
+  .aurora-blob:nth-child(3) {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, #00d4ff, transparent);
+    bottom: 200px; left: 20px;
+    animation-delay: -5s;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-30px) scale(1.08); }
+  }
+
+  /* Russia silhouette (decorative) */
+  .russia-map-bg {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 380px;
+    height: 240px;
+    opacity: 0.06;
+    z-index: 1;
+  }
+
+  /* Grid overlay */
+  .grid-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .login-content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    padding: 0 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .logo-mark {
+    width: 72px;
+    height: 72px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #3d7fff 0%, #7c4dff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    box-shadow: 0 16px 48px rgba(61,127,255,0.4), 0 0 0 1px rgba(255,255,255,0.15);
+    font-size: 32px;
+  }
+
+  .app-name {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+
+  .app-tagline {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 44px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.4;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 36px;
+  }
+  .stat-pill {
+    flex: 1;
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius-md);
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .stat-pill-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: block;
+  }
+  .stat-pill-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 2px;
+    display: block;
+  }
+
+  .vk-button {
+    width: 100%;
+    height: 58px;
+    border-radius: 18px;
+    border: none;
+    background: var(--vk-blue);
+    color: #fff;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    box-shadow: 0 8px 32px rgba(0,119,255,0.4);
+    letter-spacing: 0.01em;
+    position: relative;
+    overflow: hidden;
+  }
+  .vk-button::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 100%);
+    pointer-events: none;
+  }
+  .vk-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 40px rgba(0,119,255,0.5);
+  }
+
+  .vk-icon {
+    width: 22px;
+    height: 22px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 900;
+  }
+
+  .terms-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+  .terms-text a {
+    color: var(--accent-blue);
+    text-decoration: none;
+  }
+
+  /* ─── SCREEN 2: MAP ────────────────────────────────────── */
+  .map-screen {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+    background: #0d0f14;
+  }
+
+  /* Simulated dark map */
+  .map-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 40% 50%, rgba(61,127,255,0.08) 0%, transparent 70%),
+      #0d1017;
+  }
+
+  /* Map grid (streets simulation) */
+  .map-streets {
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+    background-image:
+      linear-gradient(rgba(100,140,255,0.4) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100,140,255,0.4) 1px, transparent 1px),
+      linear-gradient(rgba(100,140,255,0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(100,140,255,0.15) 1px, transparent 1px);
+    background-size: 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+  }
+
+  /* Revealed area (circular glow patches) */
+  .revealed-area {
+    position: absolute;
+  }
+  .reveal-patch {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(61,127,255,0.15) 0%, rgba(61,127,255,0.05) 60%, transparent 100%);
+    box-shadow: 0 0 0 1px rgba(61,127,255,0.2);
+  }
+
+  /* User position dot */
+  .user-dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(61,127,255,0.3), 0 0 0 8px rgba(61,127,255,0.1);
+    z-index: 20;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(61,127,255,0.3), 0 0 0 8px rgba(61,127,255,0.1); }
+    50%       { box-shadow: 0 0 0 6px rgba(61,127,255,0.2), 0 0 0 14px rgba(61,127,255,0.05); }
+  }
+
+  /* Status bar */
+  .status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 30;
+    padding: 14px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* Top HUD card */
+  .hud-card {
+    position: absolute;
+    top: 68px;
+    left: 16px;
+    right: 16px;
+    z-index: 30;
+    background: rgba(17,20,32,0.85);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hud-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .hud-stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .hud-stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+  }
+
+  .hud-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--border-subtle);
+  }
+
+  .tracking-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,200,100,0.12);
+    border: 1px solid rgba(0,200,100,0.2);
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #00c864;
+  }
+  .tracking-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00c864;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+
+  /* Zoom controls */
+  .map-controls {
+    position: absolute;
+    right: 16px;
+    bottom: 120px;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .map-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(17,20,32,0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: 300;
+  }
+
+  /* ─── BOTTOM NAV ────────────────────────────────────────── */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 96px;
+    padding: 0 12px 20px;
+    z-index: 50;
+    display: flex;
+    align-items: flex-end;
+  }
+  .nav-inner {
+    width: 100%;
+    height: 64px;
+    background: rgba(13,16,23,0.95);
+    backdrop-filter: blur(30px) saturate(180%);
+    border: 1px solid var(--border-glass);
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    box-shadow: 0 -8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    flex: 1;
+  }
+  .nav-item.active {
+    background: rgba(61,127,255,0.12);
+  }
+  .nav-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .nav-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .nav-item.active .nav-label { color: var(--accent-blue); }
+  .nav-item:not(.active) .nav-label { color: var(--text-muted); }
+
+  /* ─── SCREEN 3: PROFILE ─────────────────────────────────── */
+  .profile-screen {
+    width: 100%;
+    height: 100%;
+    background: var(--bg-base);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  .profile-screen::-webkit-scrollbar { display: none; }
+
+  .profile-header {
+    padding: 56px 24px 24px;
+    background: linear-gradient(180deg, #121526 0%, var(--bg-base) 100%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, #3d7fff, #7c4dff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(61,127,255,0.3);
+  }
+
+  .profile-name {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .profile-since {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gradient);
+    border-radius: 2px 2px 0 0;
+  }
+  .stat-card.blue   { --gradient: linear-gradient(90deg, #3d7fff, #00d4ff); }
+  .stat-card.purple { --gradient: linear-gradient(90deg, #7c4dff, #ff4d6d); }
+  .stat-card.green  { --gradient: linear-gradient(90deg, #00c864, #00d4ff); }
+  .stat-card.orange { --gradient: linear-gradient(90deg, #ff8c00, #ff4d6d); }
+
+  .stat-card-icon  { font-size: 22px; margin-bottom: 8px; }
+  .stat-card-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+  .stat-card-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
+  /* Progress bar */
+  .progress-section {
+    padding: 0 16px 16px;
+  }
+  .progress-card {
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-md);
+    padding: 18px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .progress-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .progress-pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .progress-bar-wrap {
+    height: 6px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #3d7fff, #7c4dff);
+  }
+
+  .region-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .region-row:last-child { border-bottom: none; }
+  .region-name {
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .region-pct {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .region-bar {
+    width: 80px;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 12px;
+  }
+  .region-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #3d7fff, #00d4ff);
+  }
+
+  /* ─── DESKTOP ADMIN PANEL ───────────────────────────────── */
+  .admin-frame {
+    width: 900px;
+    height: 600px;
+    background: #0d0f18;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .admin-sidebar {
+    width: 220px;
+    background: #111420;
+    border-right: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .admin-logo {
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .admin-logo-icon {
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #3d7fff, #7c4dff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .admin-logo-text {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .admin-badge {
+    font-size: 9px;
+    font-weight: 700;
+    background: rgba(255,77,109,0.2);
+    color: #ff4d6d;
+    border: 1px solid rgba(255,77,109,0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: auto;
+  }
+  .admin-nav {
+    padding: 12px 10px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .admin-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    color: rgba(240,242,255,0.45);
+    transition: all 0.15s;
+  }
+  .admin-nav-item.active {
+    background: rgba(61,127,255,0.12);
+    color: #3d7fff;
+    font-weight: 600;
+  }
+  .admin-nav-item span { font-size: 15px; }
+
+  .admin-main {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .admin-topbar {
+    height: 60px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+  }
+  .admin-page-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .admin-content {
+    flex: 1;
+    padding: 24px;
+    overflow: auto;
+    scrollbar-width: none;
+  }
+
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card::after {
+    content: var(--kpi-icon, '');
+    position: absolute;
+    right: 14px;
+    bottom: 10px;
+    font-size: 28px;
+    opacity: 0.15;
+  }
+  .kpi-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-top: 4px;
+  }
+  .kpi-delta {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .kpi-delta.pos { color: #00c864; }
+  .kpi-delta.neg { color: #ff4d6d; }
+
+  .admin-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .admin-panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 18px;
+  }
+  .admin-panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+  }
+
+  /* Bar chart simulation */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 80px;
+  }
+  .bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    background: linear-gradient(180deg, #3d7fff, rgba(61,127,255,0.3));
+    min-height: 4px;
+    transition: height 0.3s;
+  }
+
+  /* User table */
+  .user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .user-row:last-child { border-bottom: none; }
+  .user-mini-avatar {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #3d7fff, #7c4dff);
+    flex-shrink: 0;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .user-mini-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    flex: 1;
+  }
+  .user-mini-stat {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-left: 4px;
+  }
+  .status-dot.online { background: #00c864; }
+  .status-dot.offline { background: rgba(255,255,255,0.2); }
+
+  /* Page label */
+  .page-title {
+    color: rgba(255,255,255,0.25);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ────────────────────────────────── -->
+<!--  PHONE 1: LOGIN SCREEN             -->
+<!-- ────────────────────────────────── -->
+<div>
+  <p class="page-title">Login Screen</p>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="login-screen">
+      <div class="aurora">
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob"></div>
+      </div>
+      <div class="grid-overlay"></div>
+
+      <!-- SVG Russia shape (simplified) -->
+      <svg class="russia-map-bg" viewBox="0 0 500 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M30,120 Q60,80 100,90 Q140,100 160,75 Q200,50 250,60 Q300,70 340,50 Q380,30 420,45 Q460,60 480,80 Q490,100 470,130 Q450,160 420,155 Q380,150 350,165 Q310,180 270,170 Q230,160 200,175 Q160,190 130,175 Q90,160 60,165 Q30,170 20,150 Z" 
+              fill="rgba(61,127,255,0.8)" />
+      </svg>
+
+      <div class="login-content">
+        <div class="logo-mark">🗺️</div>
+        <div class="app-name">RusTrack</div>
+        <div class="app-tagline">Открывай Россию<br/>шаг за шагом</div>
+
+        <div class="stats-row">
+          <div class="stat-pill">
+            <span class="stat-pill-value">12 847</span>
+            <span class="stat-pill-label">Исследователей</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-pill-value">2.4M</span>
+            <span class="stat-pill-label">Км пройдено</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-pill-value">85</span>
+            <span class="stat-pill-label">Регионов</span>
+          </div>
+        </div>
+
+        <button class="vk-button">
+          <div class="vk-icon">ВК</div>
+          Войти через ВКонтакте
+        </button>
+
+        <p class="terms-text">
+          Нажимая кнопку, вы соглашаетесь с<br/>
+          <a href="#">Условиями использования</a> и <a href="#">Политикой конфиденциальности</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────── -->
+<!--  PHONE 2: MAP SCREEN               -->
+<!-- ────────────────────────────────── -->
+<div>
+  <p class="page-title">Map Screen</p>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="map-screen">
+      <div class="map-bg"></div>
+      <div class="map-streets"></div>
+
+      <!-- Revealed patches -->
+      <div class="revealed-area">
+        <div class="reveal-patch" style="width:160px;height:160px;top:260px;left:100px;"></div>
+        <div class="reveal-patch" style="width:120px;height:120px;top:300px;left:160px;"></div>
+        <div class="reveal-patch" style="width:100px;height:100px;top:320px;left:220px;"></div>
+        <div class="reveal-patch" style="width:80px;height:80px;top:350px;left:270px;"></div>
+      </div>
+
+      <!-- User position -->
+      <div class="user-dot" style="top:340px;left:260px;transform:translate(-50%,-50%);"></div>
+
+      <!-- Top HUD -->
+      <div class="hud-card">
+        <div class="hud-stat">
+          <span class="hud-stat-value">4.7</span>
+          <span class="hud-stat-label">КМ сегодня</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="hud-stat">
+          <span class="hud-stat-value">0.003%</span>
+          <span class="hud-stat-label">России открыто</span>
+        </div>
+        <div class="hud-divider"></div>
+        <div class="tracking-badge">
+          <div class="tracking-dot"></div>
+          GPS
+        </div>
+      </div>
+
+      <!-- Map controls -->
+      <div class="map-controls">
+        <div class="map-btn">+</div>
+        <div class="map-btn">−</div>
+        <div class="map-btn" style="font-size:14px;">📍</div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="bottom-nav">
+        <div class="nav-inner">
+          <div class="nav-item active">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-label">Карта</span>
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-label">Тепловая</span>
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span class="nav-label">Сообщество</span>
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Профиль</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────── -->
+<!--  PHONE 3: PROFILE SCREEN           -->
+<!-- ────────────────────────────────── -->
+<div>
+  <p class="page-title">Profile Screen</p>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="profile-screen">
+      <!-- Header -->
+      <div class="profile-header">
+        <div class="avatar">🧭</div>
+        <div>
+          <div class="profile-name">Алексей Морозов</div>
+          <div class="profile-since">С нами с марта 2024</div>
+        </div>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-card-icon">🛣️</div>
+          <div class="stat-card-value">847 км</div>
+          <div class="stat-card-label">Пройдено всего</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-card-icon">🌍</div>
+          <div class="stat-card-value">0.12%</div>
+          <div class="stat-card-label">России открыто</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-card-icon">📍</div>
+          <div class="stat-card-value">12</div>
+          <div class="stat-card-label">Регионов</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-card-icon">👥</div>
+          <div class="stat-card-value">34</div>
+          <div class="stat-card-label">Друзей</div>
+        </div>
+      </div>
+
+      <!-- Region exploration -->
+      <div class="progress-section">
+        <div class="progress-card">
+          <div class="progress-header">
+            <span class="progress-title">Топ регионов</span>
+            <span class="progress-pct">Открыто</span>
+          </div>
+
+          <div class="region-row">
+            <span class="region-name">Москва</span>
+            <div class="region-bar"><div class="region-bar-fill" style="width:78%;"></div></div>
+            <span class="region-pct">3.2%</span>
+          </div>
+          <div class="region-row">
+            <span class="region-name">Московская обл.</span>
+            <div class="region-bar"><div class="region-bar-fill" style="width:32%;"></div></div>
+            <span class="region-pct">0.8%</span>
+          </div>
+          <div class="region-row">
+            <span class="region-name">Санкт-Петербург</span>
+            <div class="region-bar"><div class="region-bar-fill" style="width:18%;"></div></div>
+            <span class="region-pct">0.4%</span>
+          </div>
+          <div class="region-row">
+            <span class="region-name">Тверская обл.</span>
+            <div class="region-bar"><div class="region-bar-fill" style="width:8%;"></div></div>
+            <span class="region-pct">0.1%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="bottom-nav">
+        <div class="nav-inner">
+          <div class="nav-item">
+            <span class="nav-icon">🗺️</span>
+            <span class="nav-label">Карта</span>
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">🔥</span>
+            <span class="nav-label">Тепловая</span>
+          </div>
+          <div class="nav-item">
+            <span class="nav-icon">💬</span>
+            <span class="nav-label">Сообщество</span>
+          </div>
+          <div class="nav-item active">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Профиль</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ────────────────────────────────── -->
+<!--  ADMIN DASHBOARD                   -->
+<!-- ────────────────────────────────── -->
+<div style="flex-basis:100%;display:flex;flex-direction:column;align-items:center;margin-top:8px;">
+  <p class="page-title">Admin Panel (Desktop)</p>
+  <div class="admin-frame">
+    <!-- Sidebar -->
+    <div class="admin-sidebar">
+      <div class="admin-logo">
+        <div class="admin-logo-icon">🗺️</div>
+        <span class="admin-logo-text">RusTrack</span>
+        <span class="admin-badge">Admin</span>
+      </div>
+      <nav class="admin-nav">
+        <div class="admin-nav-item active">
+          <span>📊</span> Dashboard
+        </div>
+        <div class="admin-nav-item">
+          <span>👥</span> Users
+        </div>
+        <div class="admin-nav-item">
+          <span>📈</span> Analytics
+        </div>
+        <div class="admin-nav-item">
+          <span>🛡️</span> Moderation
+        </div>
+        <div class="admin-nav-item">
+          <span>🔥</span> Heatmap
+        </div>
+        <div class="admin-nav-item">
+          <span>📋</span> Audit Log
+        </div>
+      </nav>
+    </div>
+
+    <!-- Main content -->
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <span class="admin-page-title">Platform Overview</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#00c864;"></div>
+          <span style="font-size:12px;color:rgba(240,242,255,0.5);">All systems operational</span>
+        </div>
+      </div>
+
+      <div class="admin-content">
+        <!-- KPIs -->
+        <div class="kpi-row">
+          <div class="kpi-card" style="--kpi-icon:'👥'">
+            <div class="kpi-value">12,847</div>
+            <div class="kpi-label">Total Users</div>
+            <div class="kpi-delta pos">↑ +234 this week</div>
+          </div>
+          <div class="kpi-card" style="--kpi-icon:'🟢'">
+            <div class="kpi-value">1,203</div>
+            <div class="kpi-label">Active Today</div>
+            <div class="kpi-delta pos">↑ +12% vs yesterday</div>
+          </div>
+          <div class="kpi-card" style="--kpi-icon:'🛣️'">
+            <div class="kpi-value">2.4M km</div>
+            <div class="kpi-label">Total Distance</div>
+            <div class="kpi-delta pos">↑ +18,400 km today</div>
+          </div>
+          <div class="kpi-card" style="--kpi-icon:'📝'">
+            <div class="kpi-value">47,392</div>
+            <div class="kpi-label">Community Posts</div>
+            <div class="kpi-delta neg">↓ 3 pending review</div>
+          </div>
+        </div>
+
+        <!-- Charts + Table -->
+        <div class="admin-panels">
+          <div class="admin-panel">
+            <div class="admin-panel-title">New Users — Last 14 Days</div>
+            <div class="bar-chart">
+              <div class="bar" style="height:30%"></div>
+              <div class="bar" style="height:45%"></div>
+              <div class="bar" style="height:40%"></div>
+              <div class="bar" style="height:60%"></div>
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar" style="height:65%"></div>
+              <div class="bar" style="height:80%"></div>
+              <div class="bar" style="height:75%"></div>
+              <div class="bar" style="height:90%"></div>
+              <div class="bar" style="height:85%"></div>
+              <div class="bar" style="height:100%"></div>
+              <div class="bar" style="height:92%"></div>
+              <div class="bar" style="height:88%;background:linear-gradient(180deg,#7c4dff,rgba(124,77,255,0.3));"></div>
+            </div>
+          </div>
+
+          <div class="admin-panel">
+            <div class="admin-panel-title">Most Active Users</div>
+            <div class="user-row">
+              <div class="user-mini-avatar">АМ</div>
+              <div class="user-mini-name">Алексей Морозов</div>
+              <span class="user-mini-stat">847 km</span>
+              <div class="status-dot online"></div>
+            </div>
+            <div class="user-row">
+              <div class="user-mini-avatar" style="background:linear-gradient(135deg,#00c864,#00d4ff);">ЕС</div>
+              <div class="user-mini-name">Елена Смирнова</div>
+              <span class="user-mini-stat">712 km</span>
+              <div class="status-dot online"></div>
+            </div>
+            <div class="user-row">
+              <div class="user-mini-avatar" style="background:linear-gradient(135deg,#ff8c00,#ff4d6d);">ДК</div>
+              <div class="user-mini-name">Дмитрий Кузнецов</div>
+              <span class="user-mini-stat">634 km</span>
+              <div class="status-dot offline"></div>
+            </div>
+            <div class="user-row">
+              <div class="user-mini-avatar" style="background:linear-gradient(135deg,#7c4dff,#ff4d6d);">АН</div>
+              <div class="user-mini-name">Анна Николаева</div>
+              <span class="user-mini-stat">589 km</span>
+              <div class="status-dot online"></div>
+            </div>
+            <div class="user-row">
+              <div class="user-mini-avatar" style="background:linear-gradient(135deg,#00d4ff,#3d7fff);">ИВ</div>
+              <div class="user-mini-name">Иван Волков</div>
+              <span class="user-mini-stat">521 km</span>
+              <div class="status-dot offline"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
