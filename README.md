@@ -22,7 +22,7 @@ updates over WebSockets, and VK sign-in.
 
 | Layer | Technologies |
 | --- | --- |
-| Frontend | Next.js 16 (App Router), TypeScript, Tailwind, React Query, Zustand, Yandex Maps JS API v3 |
+| Frontend | Next.js 16 (App Router), TypeScript, Tailwind, React Query, Zustand, VK Maps / Mappable (Yandex Maps JS API v3) |
 | Backend | NestJS 11, PostgreSQL + PostGIS, Redis, Socket.IO |
 | Auth | VK OAuth, JWT (access + refresh) in httpOnly cookies |
 | Infra | Docker Compose (Postgres/PostGIS, Redis, MinIO/S3) |
@@ -77,7 +77,7 @@ Key environment variables (see the `.env.example` files for the full list):
 
 | Variable | Where | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_VK_MAPS_API_KEY` / `NEXT_PUBLIC_YANDEX_MAPS_API_KEY` | frontend | Map rendering |
+| `NEXT_PUBLIC_VK_MAPS_API_KEY` | frontend | Map rendering (VK Maps / Mappable) |
 | `VK_APP_ID`, `VK_APP_SECRET`, `VK_SERVICE_KEY` | backend | VK OAuth |
 | `JWT_SECRET`, `JWT_REFRESH_SECRET` | backend | Token signing |
 | `DB_*`, `REDIS_*`, `S3_*` | backend | Datastores |
