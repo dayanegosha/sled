@@ -13,6 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthUser } from '../../common/types/auth-user';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
 
@@ -46,7 +47,7 @@ export class UsersController {
   @Patch('me')
   @UseGuards(JwtAuthGuard)
   updateMe(
-    @CurrentUser() user: { sub: string; id: string },
+    @CurrentUser() user: AuthUser,
     @Body() dto: { display_name?: string; username?: string; bio?: string },
   ) {
     const userId = user.id ?? user.sub;
@@ -69,7 +70,7 @@ export class UsersController {
     }),
   )
   async uploadAvatar(
-    @CurrentUser() user: { sub: string; id: string },
+    @CurrentUser() user: AuthUser,
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) throw new Error('No file uploaded');

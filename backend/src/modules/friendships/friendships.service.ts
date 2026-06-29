@@ -82,8 +82,10 @@ export class FriendshipsService {
     if (existing.rows.length > 0) {
       const st = existing.rows[0].status;
       if (st === 'accepted') throw new BadRequestException('Already friends');
-      if (st === 'pending') throw new BadRequestException('Request already sent');
-      if (st === 'blocked') throw new BadRequestException('Cannot send request');
+      if (st === 'pending')
+        throw new BadRequestException('Request already sent');
+      if (st === 'blocked')
+        throw new BadRequestException('Cannot send request');
     }
 
     await this.db.query(
@@ -105,7 +107,8 @@ export class FriendshipsService {
          WHERE requester_id = $1 AND addressee_id = $2 AND status = 'pending'`,
         [requesterId, currentUserId],
       );
-      if (result.rowCount === 0) throw new NotFoundException('Request not found');
+      if (result.rowCount === 0)
+        throw new NotFoundException('Request not found');
       return { accepted: true };
     }
 

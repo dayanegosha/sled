@@ -18,9 +18,9 @@ export class DbService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async query<T extends QueryResultRow = any>(
+  async query<T extends QueryResultRow = QueryResultRow>(
     sql: string,
-    params: any[] = [],
+    params: unknown[] = [],
   ): Promise<QueryResult<T>> {
     return this.pool.query<T>(sql, params);
   }

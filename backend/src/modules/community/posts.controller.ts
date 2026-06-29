@@ -9,8 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthUser } from '../../common/types/auth-user';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PostsService } from './posts.service';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Controller()
 @UseGuards(JwtAuthGuard)
@@ -24,7 +26,7 @@ export class PostsController {
 
   @Post('posts')
   create(
-    @CurrentUser() user: { sub?: string; id?: string },
+    @CurrentUser() user: AuthUser,
     @Body()
     dto: { content: string; lat?: number; lng?: number; locationName?: string },
   ) {
@@ -35,7 +37,7 @@ export class PostsController {
 
   @Post('posts/:id/report')
   report(
-    @CurrentUser() user: { sub?: string; id?: string },
+    @CurrentUser() user: AuthUser,
     @Param('id') id: string,
     @Body() body: { reason?: string },
   ) {
@@ -70,7 +72,7 @@ export class PostsController {
   }
 
   @Post('posts/:id/comments')
-  addComment(@Param('id') id: string, @Body() dto: any) {
+  addComment(@Param('id') id: string, @Body() dto: CreateCommentDto) {
     return this.posts.addComment(id, dto);
   }
 

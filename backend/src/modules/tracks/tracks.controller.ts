@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthUser } from '../../common/types/auth-user';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { TracksService } from './tracks.service';
 
@@ -10,7 +11,7 @@ export class TracksController {
 
   @Post('batch')
   uploadBatch(
-    @CurrentUser() user: any,
+    @CurrentUser() user: AuthUser,
     @Body()
     body: {
       points: Array<{
@@ -25,22 +26,22 @@ export class TracksController {
   }
 
   @Get('revealed')
-  getRevealed(@CurrentUser() user: any) {
+  getRevealed(@CurrentUser() user: AuthUser) {
     return this.tracks.getRevealed(user.sub ?? user.id);
   }
 
   @Get('stats')
-  getStats(@CurrentUser() user: any) {
+  getStats(@CurrentUser() user: AuthUser) {
     return this.tracks.getStats(user.sub ?? user.id);
   }
 
   @Get('today')
-  getToday(@CurrentUser() user: any) {
+  getToday(@CurrentUser() user: AuthUser) {
     return this.tracks.getTodayStats(user.sub ?? user.id);
   }
 
   @Get('regions')
-  getRegions(@CurrentUser() user: any) {
+  getRegions(@CurrentUser() user: AuthUser) {
     return this.tracks.getRegions(user.sub ?? user.id);
   }
 }

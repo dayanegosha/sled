@@ -12,6 +12,7 @@ import {
 import { createHash, randomBytes } from 'crypto';
 import type { Response } from 'express';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthUser } from '../../common/types/auth-user';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -173,7 +174,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async me(@CurrentUser() user: any) {
+  async me(@CurrentUser() user: AuthUser) {
     return this.authService.getFreshUserProfile(user.sub ?? user.id);
   }
 
@@ -220,10 +221,10 @@ export class AuthController {
 
   @Post('refresh')
   async refresh(@Res() res: Response) {
-    const token = res.req.cookies?.refresh_token;
+    const cookies = res.req.cookies as Record<string, string> | undefined;
+    const token = cookies?.refresh_token;
     if (!token) throw new UnauthorizedException();
-    const { accessToken, refreshToken } =
-      this.authService.refreshTokens(token);
+    const { accessToken, refreshToken } = this.authService.refreshTokens(token);
     setAuthCookies(res, accessToken, refreshToken);
     return res.json({ ok: true });
   }

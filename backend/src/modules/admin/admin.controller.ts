@@ -1,5 +1,14 @@
-import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthUser } from '../../common/types/auth-user';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminService } from './admin.service';
@@ -21,7 +30,7 @@ export class AdminController {
 
   @Patch('users/:id/ban')
   ban(
-    @CurrentUser() admin: any,
+    @CurrentUser() admin: AuthUser,
     @Param('id') id: string,
     @Body() b: { reason: string },
   ) {
@@ -29,7 +38,7 @@ export class AdminController {
   }
 
   @Patch('users/:id/unban')
-  unban(@CurrentUser() admin: any, @Param('id') id: string) {
+  unban(@CurrentUser() admin: AuthUser, @Param('id') id: string) {
     return this.admin.unban(admin.id ?? admin.sub, id);
   }
 
@@ -44,7 +53,7 @@ export class AdminController {
   }
 
   @Patch('posts/:id/hide')
-  hide(@CurrentUser() admin: any, @Param('id') id: string) {
+  hide(@CurrentUser() admin: AuthUser, @Param('id') id: string) {
     return this.admin.hidePost(admin.id ?? admin.sub, id);
   }
 

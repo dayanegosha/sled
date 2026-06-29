@@ -443,12 +443,21 @@ export class AuthService {
 
     if (!adminUser) {
       const accessToken = this.jwt.sign(
-        { sub: 'admin', id: 'admin', is_admin: true, username: 'admin', display_name: 'Admin' },
+        {
+          sub: 'admin',
+          id: 'admin',
+          is_admin: true,
+          username: 'admin',
+          display_name: 'Admin',
+        },
         { secret: this.config.get<string>('JWT_SECRET'), expiresIn: '2h' },
       );
       const refreshToken = this.jwt.sign(
         { sub: 'admin', type: 'refresh' },
-        { secret: this.config.get<string>('JWT_REFRESH_SECRET'), expiresIn: '7d' },
+        {
+          secret: this.config.get<string>('JWT_REFRESH_SECRET'),
+          expiresIn: '7d',
+        },
       );
       return { accessToken, refreshToken };
     }

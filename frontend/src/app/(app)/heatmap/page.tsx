@@ -5,6 +5,7 @@ import GlassCard from '@/components/ui/GlassCard';
 import { Flame, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { api } from '@/services/api';
+import { useClientValue } from '@/hooks/useClientValue';
 
 const BANNER_KEY = 'sled_heatmap_intro_dismissed';
 
@@ -12,17 +13,16 @@ type TopItem = { name: string; users: number; score: number };
 
 export default function HeatmapPage() {
   const { t, i18n } = useTranslation();
-  const [banner, setBanner] = useState(false);
+  const introUnseen = useClientValue(
+    () => !localStorage.getItem(BANNER_KEY),
+    false,
+  );
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const banner = introUnseen && !bannerDismissed;
   const [items, setItems] = useState<TopItem[]>([]);
 
   const lang =
     i18n.language?.startsWith('en') ? 'en' : i18n.language?.startsWith('zh') ? 'zh' : 'ru';
-
-  useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem(BANNER_KEY)) {
-      setBanner(true);
-    }
-  }, []);
 
   useEffect(() => {
     api
@@ -36,7 +36,7 @@ export default function HeatmapPage() {
 
   const dismissBanner = () => {
     localStorage.setItem(BANNER_KEY, '1');
-    setBanner(false);
+    setBannerDismissed(true);
   };
 
   return (

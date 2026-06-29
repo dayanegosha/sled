@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { DbService } from '../../database/db.service';
 
 type UserRow = {
@@ -56,7 +60,7 @@ export class UsersService {
     dto: { display_name?: string; username?: string; bio?: string },
   ) {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let idx = 1;
 
     if (dto.display_name !== undefined) {

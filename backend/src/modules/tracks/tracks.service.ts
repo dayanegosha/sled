@@ -43,7 +43,11 @@ export class TracksService {
         return { ...p, flagged: true, reason: 'invalid_coords' };
       }
 
-      if (p.accuracy !== undefined && p.accuracy !== null && p.accuracy < MIN_ACCURACY_THRESHOLD) {
+      if (
+        p.accuracy !== undefined &&
+        p.accuracy !== null &&
+        p.accuracy < MIN_ACCURACY_THRESHOLD
+      ) {
         return { ...p, flagged: true, reason: 'suspicious_accuracy' };
       }
 
@@ -133,7 +137,7 @@ export class TracksService {
   }
 
   async getRevealed(userId: string) {
-    const { rows } = await this.db.query(
+    const { rows } = await this.db.query<{ geojson: string }>(
       'SELECT ST_AsGeoJSON(geom::geometry) AS geojson FROM revealed_areas WHERE user_id = $1',
       [userId],
     );

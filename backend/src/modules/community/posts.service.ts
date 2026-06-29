@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { DbService } from '../../database/db.service';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Injectable()
 export class PostsService {
@@ -44,9 +45,7 @@ export class PostsService {
         commentsCount: r.comments_count,
         locationName: r.location_name,
         location:
-          r.lat != null && r.lng != null
-            ? { lat: r.lat, lng: r.lng }
-            : null,
+          r.lat != null && r.lng != null ? { lat: r.lat, lng: r.lng } : null,
         author: {
           id: r.user_id,
           username: r.username,
@@ -95,11 +94,7 @@ export class PostsService {
     return { id: rows[0]?.id };
   }
 
-  async report(
-    reporterId: string,
-    postId: string,
-    reason?: string,
-  ) {
+  async report(reporterId: string, postId: string, reason?: string) {
     const post = await this.db.query(
       'SELECT id FROM posts WHERE id = $1 AND is_hidden = false',
       [postId],
@@ -131,7 +126,7 @@ export class PostsService {
   listComments(id: string) {
     return { postId: id, items: [] };
   }
-  addComment(id: string, dto: any) {
+  addComment(id: string, dto: CreateCommentDto) {
     return { id: crypto.randomUUID(), postId: id, ...dto };
   }
   removeComment(id: string) {

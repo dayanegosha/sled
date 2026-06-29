@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { applyTheme, getStoredTheme, type AppTheme } from '@/components/ui/ThemeProvider';
+import { useClientValue } from '@/hooks/useClientValue';
 
 const THEMES: { id: AppTheme; key: string }[] = [
   { id: 'dark-blue', key: 'theme.darkBlue' },
@@ -13,11 +14,9 @@ const THEMES: { id: AppTheme; key: string }[] = [
 
 export default function ThemeSwitcher() {
   const { t } = useTranslation();
-  const [current, setCurrent] = useState<AppTheme>('dark-blue');
-
-  useEffect(() => {
-    setCurrent(getStoredTheme());
-  }, []);
+  const storedTheme = useClientValue<AppTheme>(getStoredTheme, 'dark-blue');
+  const [picked, setPicked] = useState<AppTheme | null>(null);
+  const current = picked ?? storedTheme;
 
   return (
     <div className="rounded-xl border border-white/10 bg-white/5 p-3">
@@ -29,7 +28,7 @@ export default function ThemeSwitcher() {
             type="button"
             onClick={() => {
               applyTheme(id);
-              setCurrent(id);
+              setPicked(id);
             }}
             className={`rounded-lg border px-2 py-2 text-xs transition ${
               current === id

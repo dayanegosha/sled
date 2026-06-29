@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useClientValue } from '@/hooks/useClientValue';
 
 const LS_KEY = 'install_banner_dismissed';
 
 function isStandalone() {
   if (typeof window === 'undefined') return true;
+  const nav = window.navigator as Navigator & { standalone?: boolean };
   return (
     window.matchMedia('(display-mode: standalone)').matches ||
-    (window.navigator as any).standalone === true
+    nav.standalone === true
   );
 }
 
@@ -18,19 +20,17 @@ function isIos() {
 }
 
 export default function InstallBanner() {
-  const [visible, setVisible] = useState(false);
+  const eligible = useClientValue(
+    () => !isStandalone() && !localStorage.getItem(LS_KEY),
+    false,
+  );
+  const [dismissed, setDismissed] = useState(false);
 
-  useEffect(() => {
-    if (isStandalone()) return;
-    if (localStorage.getItem(LS_KEY)) return;
-    setVisible(true);
-  }, []);
-
-  if (!visible) return null;
+  if (!eligible || dismissed) return null;
 
   const dismiss = () => {
     localStorage.setItem(LS_KEY, '1');
-    setVisible(false);
+    setDismissed(true);
   };
 
   const ios = isIos();

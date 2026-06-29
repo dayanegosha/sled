@@ -30,9 +30,7 @@ export class AdminService {
       return {
         totalUsers: Number(usersRes.rows[0]?.total ?? 0),
         activeToday: Number(activeRes.rows[0]?.total ?? 0),
-        totalDistanceKm: Math.round(
-          Number(distanceRes.rows[0]?.total_km ?? 0),
-        ),
+        totalDistanceKm: Math.round(Number(distanceRes.rows[0]?.total_km ?? 0)),
         totalTrackPoints: Number(tracksRes.rows[0]?.total ?? 0),
         totalPosts: Number(postsRes.rows[0]?.total ?? 0),
       };
@@ -50,7 +48,7 @@ export class AdminService {
   async users(page = 1, limit = 50, search?: string) {
     const offset = (page - 1) * limit;
     let whereClause = '';
-    const params: any[] = [];
+    const params: unknown[] = [];
 
     if (search) {
       whereClause = `WHERE LOWER(username) LIKE $1 OR LOWER(display_name) LIKE $1`;
