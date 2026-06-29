@@ -1,6 +1,10 @@
-# RusTrack
+<p align="center">
+  <img src="docs/logo.png" alt="RusTrack logo" width="110" />
+</p>
 
-> Discover Russia step by step.
+<h1 align="center">RusTrack</h1>
+
+<p align="center"><em>Discover Russia step by step.</em></p>
 
 RusTrack is a travel-tracking PWA that turns exploring the country into a map you
 uncover as you go. The map of Russia starts hidden; each region you visit gets

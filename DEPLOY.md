@@ -37,10 +37,10 @@ node -v  # v20.x.x
 ```bash
 apt install -y postgresql postgresql-contrib postgis postgresql-15-postgis-3
 
-sudo -u postgres createuser --interactive  # имя: sled, суперюзер: нет
-sudo -u postgres createdb sled -O sled
-sudo -u postgres psql -c "ALTER USER sled WITH PASSWORD 'ВАШ_ПАРОЛЬ';"
-sudo -u postgres psql -d sled -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+sudo -u postgres createuser --interactive  # имя: rustrack, суперюзер: нет
+sudo -u postgres createdb rustrack -O rustrack
+sudo -u postgres psql -c "ALTER USER rustrack WITH PASSWORD 'ВАШ_ПАРОЛЬ';"
+sudo -u postgres psql -d rustrack -c "CREATE EXTENSION IF NOT EXISTS postgis;"
 ```
 
 ## 5. Установка Redis
@@ -55,14 +55,14 @@ systemctl start redis-server
 
 ```bash
 cd /opt
-git clone https://github.com/YOUR_USERNAME/sled.git
-cd sled
+git clone https://github.com/YOUR_USERNAME/rustrack.git
+cd rustrack
 ```
 
 Или скопируйте файлы через `scp`:
 
 ```bash
-scp -r ./sled root@ВАШ_IP:/opt/sled
+scp -r ./rustrack root@ВАШ_IP:/opt/rustrack
 ```
 
 ## 7. Настройка окружения
@@ -70,7 +70,7 @@ scp -r ./sled root@ВАШ_IP:/opt/sled
 ### Backend
 
 ```bash
-cd /opt/sled/backend
+cd /opt/rustrack/backend
 cp .env.example .env
 nano .env
 ```
@@ -82,8 +82,8 @@ NODE_ENV=production
 PORT=3001
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=sled
-DB_USER=sled
+DB_NAME=rustrack
+DB_USER=rustrack
 DB_PASS=ВАШ_ПАРОЛЬ
 REDIS_HOST=localhost
 REDIS_PORT=6379
@@ -106,7 +106,7 @@ openssl rand -hex 32
 ### Frontend
 
 ```bash
-cd /opt/sled/frontend
+cd /opt/rustrack/frontend
 cp .env.local.example .env.local
 nano .env.local
 ```
@@ -122,12 +122,12 @@ NEXT_PUBLIC_VK_REDIRECT_URL=https://xn----ctbhdsns0ae.xn--p1ai/api/v1/auth/vk/ca
 ## 8. Миграции базы данных
 
 ```bash
-cd /opt/sled/backend
-sudo -u postgres psql -d sled -f src/database/migrations/001_init.sql
-sudo -u postgres psql -d sled -f src/database/migrations/002_postgis.sql
-sudo -u postgres psql -d sled -f src/database/migrations/003_indexes.sql
-sudo -u postgres psql -d sled -f src/database/migrations/004_post_reports.sql
-sudo -u postgres psql -d sled -f src/database/seeds/regions.sql
+cd /opt/rustrack/backend
+sudo -u postgres psql -d rustrack -f src/database/migrations/001_init.sql
+sudo -u postgres psql -d rustrack -f src/database/migrations/002_postgis.sql
+sudo -u postgres psql -d rustrack -f src/database/migrations/003_indexes.sql
+sudo -u postgres psql -d rustrack -f src/database/migrations/004_post_reports.sql
+sudo -u postgres psql -d rustrack -f src/database/seeds/regions.sql
 ```
 
 ### Переменные `NEXT_PUBLIC_*` (важно)
@@ -137,11 +137,11 @@ sudo -u postgres psql -d sled -f src/database/seeds/regions.sql
 ## 9. Установка зависимостей и сборка
 
 ```bash
-cd /opt/sled/backend
+cd /opt/rustrack/backend
 npm ci
 npm run build
 
-cd /opt/sled/frontend
+cd /opt/rustrack/frontend
 npm ci
 npm run build
 ```
@@ -151,11 +151,11 @@ npm run build
 ```bash
 npm install -g pm2
 
-cd /opt/sled/backend
-pm2 start dist/main.js --name sled-api
+cd /opt/rustrack/backend
+pm2 start dist/main.js --name rustrack-api
 
-cd /opt/sled/frontend
-pm2 start npm --name sled-web -- start
+cd /opt/rustrack/frontend
+pm2 start npm --name rustrack-web -- start
 
 pm2 save
 pm2 startup  # следуйте инструкции в терминале
@@ -179,7 +179,7 @@ apt install -y nginx
 Создайте конфиг:
 
 ```bash
-nano /etc/nginx/sites-available/sled
+nano /etc/nginx/sites-available/rustrack
 ```
 
 ```nginx
@@ -224,7 +224,7 @@ server {
 Активируйте:
 
 ```bash
-ln -s /etc/nginx/sites-available/sled /etc/nginx/sites-enabled/
+ln -s /etc/nginx/sites-available/rustrack /etc/nginx/sites-enabled/
 rm /etc/nginx/sites-enabled/default
 nginx -t
 systemctl reload nginx
@@ -280,7 +280,7 @@ ufw enable
 ## 16. Обновление приложения
 
 ```bash
-cd /opt/sled
+cd /opt/rustrack
 git pull
 
 cd backend && npm ci && npm run build
@@ -330,6 +330,6 @@ ADMIN_PASSWORD=SledAdmin2024!
 
 - **502 Bad Gateway**: PM2 процессы упали → `pm2 restart all && pm2 logs`
 - **VK OAuth ошибка**: проверьте Redirect URL в настройках VK и `VK_CALLBACK_URL` в `.env`
-- **База данных**: `sudo -u postgres psql -d sled` → проверьте таблицы
+- **База данных**: `sudo -u postgres psql -d rustrack` → проверьте таблицы
 - **SSL не работает**: `certbot renew --dry-run`
 
